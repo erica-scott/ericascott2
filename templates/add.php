@@ -22,14 +22,18 @@ if (isset($_POST['submit_add'])) {
 		}
 		$date = $year . '-' . $month . '-' . $day;
 
-		$query = sprintf("INSERT INTO money (amount, description, pos_neg, date) VALUES ('%s', '%s', '%s', '%s')", 
-			$amount, $description, $pos_neg, $date);
+		$username = $_COOKIE['username'];
+		$query = sprintf("SELECT id FROM admin WHERE username = '%s'", $username);
+		$res = mysql_query($query);
+		$row = mysql_fetch_assoc($res);
+		$user_id = $row['id'];
 
-		print $query;
+		$query = sprintf("INSERT INTO money (amount, description, pos_neg, date, user_id) VALUES ('%s', '%s', '%s', '%s', '%s')", 
+			$amount, $description, $pos_neg, $date, $user_id);
 
 		$res = mysql_query($query, $con) or die(mysql_error());
 		if (mysql_affected_rows() == 1) {
-			header("Location: http://ericas-macbook-air.local/money/index.php");
+			header("Location: http://ericas-macbook-air.local/ericascott/templates/money.php");
 			die();
 		}
 	}
@@ -47,7 +51,7 @@ if (isset($_POST['submit_add'])) {
 	      clear: both;
 	    }
 		</style>
-		<script src="js/jquery-2.2.0.js"></script>
+		<script src="../js/jquery-2.2.0.js"></script>
 		<script>
 			$(document).ready(function() {
 
@@ -58,7 +62,7 @@ if (isset($_POST['submit_add'])) {
 				$('#amount').keyup(function() {
 					var amount = $('#amount').val();
 					$.ajax({
-						url: 'ajax/check_pos_neg.php',
+						url: '../ajax/check_pos_neg.php',
 						method: 'post',
 						data: {amount: amount},
 						success: function(data) {
@@ -87,7 +91,7 @@ if (isset($_POST['submit_add'])) {
 					var year = $('#year').val();
 					if (month != 'none') {
 						$.ajax({
-							url: 'ajax/get_num_days.php',
+							url: '../ajax/get_num_days.php',
 							method: 'post',
 							data: {month: month, year: year},
 							success: function(data) {
@@ -101,7 +105,7 @@ if (isset($_POST['submit_add'])) {
 				});
 
 				$('#cancel').click(function() {
-					window.location.replace('index.php');
+					window.location.replace('money.php');
 				});
 			});
 			function validate() {
@@ -111,6 +115,7 @@ if (isset($_POST['submit_add'])) {
 		</script>
 	</head>
 	<body>
+		<?php include('../header.php'); ?>
 		<div class="container">
 			<form method="post" action="">
 				<label>Amount: </label><input type="text" id="amount" name="amount" placeholder="$0.00" required><br><br>

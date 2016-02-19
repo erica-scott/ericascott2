@@ -9,7 +9,7 @@
 				readNextMessage();
 
 				$('#money').click(function() {
-					window.location.replace('money.php');
+					window.location.replace('templates/money.php');
 				});
 				$('#login').click(function() {
 					var username = $('#username').val();

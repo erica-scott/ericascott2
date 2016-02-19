@@ -158,6 +158,13 @@
 				$('#return').click(function() {
 					window.location.replace('index.php');
 				});
+
+				$('#scroll_to_current').click(function() {
+					var id = 'current_total';
+					$('html,body').animate({
+		        scrollTop: $("#"+id).offset().top},
+		        'slow');
+					});
 			});
 			function redirectToLogin() {
 				window.location.replace('index.php');
@@ -165,11 +172,12 @@
 		</script>
 	</head>
 	<body>
-		<?php include('header.php'); ?>
+		<?php include('../header.php'); ?>
 		<br>
 		<?php if(isset($_COOKIE['username']) && $_COOKIE['username'] != 'false') : ?>
 			<form method="post" action="add.php">
 				<input type="submit" id="add" value="Add">
+				<input type="button" id ="scroll_to_current" value="Go To Current Total">
 				<input type="button" id="return" name="return" value="Return">
 			</form>
 			<?php
@@ -224,50 +232,74 @@
 				}
 			}
 
+			$current_date = date('Y-m-d');
+			$current_date = explode('-', $current_date);
+			$current_total = 0;
+			foreach ($data as $year => $months) {
+				if ($year <= $current_date[0]) {
+					foreach ($months as $month => $days) {
+						if ($month <= $current_date[1]) {
+							foreach ($days as $day => $rows) {
+								if ($day <= $current_date[2]) {
+									foreach ($rows as $row) {
+										$temp = str_replace('$', '', $row['amount']);
+										$current_total += floatval($temp);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
 			if (empty($data)) {
 				print "You have not added any entires yet. Click the add button above to start.";
 			}
-			foreach ($data as $year => $months) { ?>
-				<h1><?php print $year; ?></h1>
-				<?php foreach ($months as $month => $days) { ?>
-					<table border=1 style="border-collapse:collapse; width:30%;">
-						<col width="30%">
-						<col width="30%">
-						<col width="30%">
-						<col witdh="10%">
-						<tr>
-							<td><b><?php echo $months_arr[$month]; ?></b></td>
-							<td>&nbsp;</td>
-							<td>&nbsp;</td>
-							<td>&nbsp;</td>
-						</tr>
-						<?php foreach ($days as $day => $rows) {
-							if (is_array($rows)) {
-								foreach ($rows as $row) { ?>
-									<tr>
-										<td <?php if($row['pos_neg'] == 0) { ?> style="color:red;" <?php } ?> ><?php echo $row['amount']; ?></td>
-										<td><?php echo $row['description']; ?></td>
-										<td><?php echo $row['date']; ?></td>
-										<td>
-											<img class="edit" id="edit_<?php echo $row['id']; ?>" width="20px" height="20px" src="images/edit.png"><img class="delete" id="delete_<?php echo $row['id']; ?>" width="20px" height="20px" src="images/delete.png"><img class="add" id="add_<?php echo $row['id']; ?>" width="20px" height="20px" src="images/add.png">
-										</td>
-									</tr>
-								<?php }
-							}
+
+				foreach ($data as $year => $months) { ?>
+					<h1><?php print $year; ?></h1>
+					<?php foreach ($months as $month => $days) { ?>
+						<table border=1 style="border-collapse:collapse; width:30%;">
+							<col width="30%">
+							<col width="30%">
+							<col width="30%">
+							<col witdh="10%">
+							<tr>
+								<td><b><?php echo $months_arr[$month]; ?></b></td>
+								<td>&nbsp;</td>
+								<td>&nbsp;</td>
+								<td>&nbsp;</td>
+							</tr>
+							<?php foreach ($days as $day => $rows) {
+								if (is_array($rows)) {
+									foreach ($rows as $row) { ?>
+										<tr>
+											<td <?php if($row['pos_neg'] == 0) { ?> style="color:red;" <?php } ?> ><?php echo $row['amount']; ?></td>
+											<td><?php echo $row['description']; ?></td>
+											<td><?php echo $row['date']; ?></td>
+											<td>
+												<img class="edit" id="edit_<?php echo $row['id']; ?>" width="20px" height="20px" src="../images/edit.png"><img class="delete" id="delete_<?php echo $row['id']; ?>" width="20px" height="20px" src="../images/delete.png"><img class="add" id="add_<?php echo $row['id']; ?>" width="20px" height="20px" src="../images/add.png">
+											</td>
+										</tr>
+									<?php }
+								}
+							} ?>
+							<tr>
+								<td><?php echo '$'.$data[$year][$month]['total']; ?>
+								<td>Total</td>
+								<td>&nbsp;</td>
+								<td>&nbsp;</td>
+							</tr>
+						</table>
+						<br>
+						<?php if ($year == $current_date[0] && $month == $current_date[1]) {
+							print '<div id="current_total"><b>Current Total:</b> ' . $current_total . "</div><br/>";
 						} ?>
-						<tr>
-							<td><?php echo '$'.$data[$year][$month]['total']; ?>
-							<td>Total</td>
-							<td>&nbsp;</td>
-							<td>&nbsp;</td>
-						</tr>
-					</table>
-					<br>
-				<?php 
-					$count++;
-				} ?>
-				<hr>
-			<?php } ?>
+					<?php 
+						$count++;
+					} ?>
+					<hr>
+				<?php } ?>
 
 			<div style="display:none;" id="dialog-edit" title="Edit"></div>
 			<input type="hidden" id="edit_id">
