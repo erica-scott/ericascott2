@@ -1,13 +1,10 @@
 <?php 
 $id = $_POST['id'];
 
-$con = mysql_connect('localhost', 'root') or die('Could not connect: ' . mysql_error());
+include('../library/actions.php');
 
-mysql_select_db('money');
+$row = get($id, 'money');
 
-$query = sprintf("SELECT * FROM money WHERE id = '%s'", $id);
-$res = mysql_query($query);
-$row = mysql_fetch_assoc($res);
 $date = explode("-", $row['date']);
 ?>
 <label>Amount: </label><input disabled type="text" id="amount" name="amount" placeholder="$0.00" value="<?php print $row['amount']; ?>" required><br><br>
