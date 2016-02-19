@@ -56,6 +56,20 @@
 					$('#dialog-delete').dialog("open");
 				});
 
+				$('.add').click(function() {
+					var id = this.id.split('_')[1];
+					$.ajax({
+						url: 'ajax/add_copy.php',
+						method: 'post',
+						data: {id: id},
+						success: function(data) {
+							document.getElementById("dialog-add").innerHTML = data;
+							$('#add_id').val(id);
+							$('#dialog-add').dialog("open");
+						}
+					});
+				});
+
 				$('#dialog-edit').dialog({
 					autoOpen: false,
 					buttons: {
@@ -69,7 +83,7 @@
 							$.ajax({
 								url: 'ajax/add.php',
 								method: 'post',
-								data: {id: id, amount: amount, description: description, year: year, month: month, day: day},
+								data: {id: id, amount: amount, description: description, year: year, month: month, day: day, flag: 1},
 								success: function(data) {
 									if (data == true) {
 										$('#dialog-edit').dialog("close");
@@ -101,6 +115,36 @@
 										window.location.reload();
 									} else {
 										document.getElementById("dialog-delete").innerHTML = "There was an error deleting this. Please try again.";
+									}
+								}
+							});
+						},
+						'Cancel': function() {
+							$(this).dialog("close");
+						}
+					}
+				});
+
+				$('#dialog-add').dialog({
+					autoOpen: false,
+					buttons: {
+						'Add Copy': function() {
+							var id = $('#edit_id').val();
+							var amount = $('#amount').val();
+							var description = $('#description').val();
+							var year = $('#year').val();
+							var month = $('#month').val();
+							var day = $('#day').val();
+							$.ajax({
+								url: 'ajax/add.php',
+								method: 'post',
+								data: {id: id, amount: amount, description: description, year: year, month: month, day: day, flag: 0},
+								success: function(data) {
+									if (data == true) {
+										$('#dialog-add').dialog("close");
+										window.location.reload();
+									} else {
+										document.getElementById("dialog-add").innerHTML = "There was an error adding this copy. Please try again.";
 									}
 								}
 							});
@@ -152,11 +196,13 @@
 				$lst_mth = intval($month) - 1;
 				if ($lst_mth < 10 && $lst_mth > 0) {
 					$lst_mth = '0' . $lst_mth;
+					$lst_yr = $year;
 				} else if ($lst_mth < 1) {
 					$lst_mth = 12;
+					$lst_yr = $year-1;
 				}
-				if (isset($data[$year][$lst_mth]['total'])) {
-					$data[$year][$month]['total'] += $data[$year][$lst_mth]['total'];
+				if (isset($data[$lst_yr][$lst_mth]['total'])) {
+					$data[$year][$month]['total'] += $data[$lst_yr][$lst_mth]['total'];
 				}
 			}
 		}
@@ -183,7 +229,7 @@
 									<td><?php echo $row['description']; ?></td>
 									<td><?php echo $row['date']; ?></td>
 									<td>
-										<img class="edit" id="edit_<?php echo $row['id']; ?>" width="20px" height="20px" src="images/edit.png"><img class="delete" id="delete_<?php echo $row['id']; ?>" width="20px" height="20px" src="images/delete.png">
+										<img class="edit" id="edit_<?php echo $row['id']; ?>" width="20px" height="20px" src="images/edit.png"><img class="delete" id="delete_<?php echo $row['id']; ?>" width="20px" height="20px" src="images/delete.png"><img class="add" id="add_<?php echo $row['id']; ?>" width="20px" height="20px" src="images/add.png">
 									</td>
 								</tr>
 							<?php }
@@ -207,5 +253,7 @@
 		<input type="hidden" id="edit_id">
 		<div style="display:none;" id="dialog-delete" title="Delete"></div>
 		<input type="hidden" id="delete_id">
+		<div style="display:none;" id="dialog-add" title="Add Copy"></div>
+		<input type="hidden" id="add_id">
 	</body>
 </html>

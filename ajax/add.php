@@ -2,6 +2,7 @@
 $id = $_POST['id'];
 $amount = $_POST['amount'];
 $description = $_POST['description'];
+$flag = $_POST['flag'];
 $month = $_POST['month'];
 $day = $_POST['day'];
 if ($month < 10) {
@@ -22,8 +23,11 @@ if ($temp < 0) {
 $con = mysql_connect('localhost', 'root') or die('Could not connect: ' . mysql_error());
 
 mysql_select_db('money');
-
-$query = sprintf("UPDATE money SET amount = '%s', description = '%s', date = '%s', pos_neg = '%s' WHERE id = '%s'", $amount, $description, $date, $pos_neg, $id);
+if ($flag == 1) {
+	$query = sprintf("UPDATE money SET amount = '%s', description = '%s', date = '%s', pos_neg = '%s' WHERE id = '%s'", $amount, $description, $date, $pos_neg, $id);
+} else {
+	$query = sprintf("INSERT INTO money (amount, description, date, pos_neg) VALUES ('%s', '%s', '%s', '%s')", $amount, $description, $date, $pos_neg);
+}
 $res = mysql_query($query, $con);
 if ($res == true) {
 	print TRUE;
