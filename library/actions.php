@@ -42,10 +42,16 @@ function get($id, $table_name) {
 
 function updateInsert($flag, $amount, $description, $date, $pos_neg, $id, $table_name) {
 	global $con;
+	$username = $_COOKIE['username'];
+	$query = sprintf("SELECT id FROM admin WHERE username = '%s'", $username);
+	$res = mysql_query($query);
+	$row = mysql_fetch_assoc($res);
+	$user_id = $row['id'];
+
 	if ($flag == 1) {
 		$query = sprintf("UPDATE %s SET amount = '%s', description = '%s', date = '%s', pos_neg = '%s' WHERE id = '%s'", $table_name, $amount, $description, $date, $pos_neg, $id);
 	} else {
-		$query = sprintf("INSERT INTO %s (amount, description, date, pos_neg) VALUES ('%s', '%s', '%s', '%s')", $table_name, $amount, $description, $date, $pos_neg);
+		$query = sprintf("INSERT INTO %s (amount, description, date, pos_neg, user_id) VALUES ('%s', '%s', '%s', '%s', '%s')", $table_name, $amount, $description, $date, $pos_neg, $user_id);
 	}
 	$res = mysql_query($query, $con);
 	return $res;

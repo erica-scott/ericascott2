@@ -11,6 +11,11 @@
 				$('#money').click(function() {
 					window.location.replace('templates/money.php');
 				});
+
+				$('#grades').click(function() {
+					window.location.replace('templates/grades.php');
+				});
+
 				$('#login').click(function() {
 					var username = $('#username').val();
 					var password = $('#password').val();
@@ -119,10 +124,11 @@
 		</style>
 	</head>
 	<body>
-		<?php include('header.php'); ?>
+		<?php include('templates/header.php'); ?>
 		<?php if(isset($_COOKIE['username']) && $_COOKIE['username'] != 'false') : ?>
 			<h1>Please choose a function below:</h1><br>
 			<input type="button" name="money" id="money" value ="Manage Money">
+			<input type="button" name="grades" id="grades" value ="Monitor Grades">
 			<input type="button" name="logout" id="logout" value ="Logout">
 		<?php else : ?>
 			<div id="login_form">

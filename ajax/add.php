@@ -1,5 +1,9 @@
 <?php
-$id = $_POST['id'];
+if (isset($_POST['id'])) {
+	$id = $_POST['id'];
+} else {
+	$id = null;
+}
 $amount = $_POST['amount'];
 $description = $_POST['description'];
 $flag = $_POST['flag'];

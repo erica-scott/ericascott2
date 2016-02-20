@@ -38,7 +38,7 @@
 				$('.edit').click(function() {
 					var id = this.id.split('_')[1];
 					$.ajax({
-						url: 'ajax/edit_form.php',
+						url: '../ajax/edit_form.php',
 						method: 'post',
 						data: {id: id},
 						success: function(data) {
@@ -59,13 +59,53 @@
 				$('.add').click(function() {
 					var id = this.id.split('_')[1];
 					$.ajax({
-						url: 'ajax/add_copy.php',
+						url: '../ajax/add_copy.php',
 						method: 'post',
 						data: {id: id},
 						success: function(data) {
 							document.getElementById("dialog-add").innerHTML = data;
 							$('#add_id').val(id);
 							$('#dialog-add').dialog("open");
+						}
+					});
+				});
+
+				$('#add').click(function() {
+					$.ajax({
+						url: '../ajax/add_form.php',
+						method: 'post',
+						success: function(data) {
+							document.getElementById("dialog-new").innerHTML = data;
+							$('#dialog-new').dialog("open");
+
+							$('#month').hide();
+							$('#day_dropdown').hide();
+
+							$('#year').change(function() {
+								if ($(this).val() != 'none') {
+									$('#month').show();
+								} else {
+									$('#month').hide();
+									$('#day_dropdown').hide();
+								}
+							});
+
+							$('#month').change(function() {
+								var month = $('#month').val();
+								var year = $('#year').val();
+								if (month != 'none') {
+									var days = new Date(year, month, 0).getDate();
+									var data = '<select id="day" name="day"><option value="none">Day</option>';
+									for (var i = 1; i <= days; i++) {
+										data = data + '<option value="' + i + '">' + i + '</option>';
+									}
+									data = data + '</select>';
+									$('#day_dropdown').html(data);
+									$('#day_dropdown').show();
+								} else {
+									$('#day_dropdown').hide();
+								}
+							});
 						}
 					});
 				});
@@ -81,7 +121,7 @@
 							var month = $('#month').val();
 							var day = $('#day').val();
 							$.ajax({
-								url: 'ajax/add.php',
+								url: '../ajax/add.php',
 								method: 'post',
 								data: {id: id, amount: amount, description: description, year: year, month: month, day: day, flag: 1},
 								success: function(data) {
@@ -100,13 +140,42 @@
 					}
 				});
 
+				$('#dialog-new').dialog({
+					autoOpen: false,
+					buttons: {
+						'Add': function() {
+							var amount = $('#amount').val();
+							var description = $('#description').val();
+							var year = $('#year').val();
+							var month = $('#month').val();
+							var day = $('#day').val();
+							$.ajax({
+								url: '../ajax/add.php',
+								method: 'post',
+								data: {amount: amount, description: description, year: year, month: month, day: day, flag: 0},
+								success: function(data) {
+									if (data == true) {
+										$('#dialog-new').dialog("close");
+										window.location.reload();
+									} else {
+										document.getElementById("dialog-new").innerHTML = "There was an error editing this. Please try again." . data;
+									}
+								}
+							});
+						},
+						'Cancel': function() {
+							$(this).dialog("close");
+						}
+					}
+				});
+
 				$('#dialog-delete').dialog({
 					autoOpen: false,
 					buttons: {
 						'Delete': function() {
 							var id = $('#delete_id').val();
 							$.ajax({
-								url: 'ajax/delete.php',
+								url: '../ajax/delete.php',
 								method: 'post',
 								data: {id: id},
 								success: function(data) {
@@ -136,7 +205,7 @@
 							var month = $('#month').val();
 							var day = $('#day').val();
 							$.ajax({
-								url: 'ajax/add.php',
+								url: '../ajax/add.php',
 								method: 'post',
 								data: {id: id, amount: amount, description: description, year: year, month: month, day: day, flag: 0},
 								success: function(data) {
@@ -156,7 +225,7 @@
 				});
 
 				$('#return').click(function() {
-					window.location.replace('index.php');
+					window.location.replace('../index.php');
 				});
 
 				$('#scroll_to_current').click(function() {
@@ -167,19 +236,17 @@
 					});
 			});
 			function redirectToLogin() {
-				window.location.replace('index.php');
+				window.location.replace('../index.php');
 			}
 		</script>
 	</head>
 	<body>
-		<?php include('../header.php'); ?>
+		<?php include('header.php'); ?>
 		<br>
 		<?php if(isset($_COOKIE['username']) && $_COOKIE['username'] != 'false') : ?>
-			<form method="post" action="add.php">
-				<input type="submit" id="add" value="Add">
-				<input type="button" id ="scroll_to_current" value="Go To Current Total">
-				<input type="button" id="return" name="return" value="Return">
-			</form>
+			<input type="button" id="add" value="Add">
+			<input type="button" id ="scroll_to_current" value="Go To Current Total">
+			<input type="button" id="return" name="return" value="Return">
 			<?php
 			$con = mysql_connect('localhost', 'root') or die('Could not connect: ' . mysql_error());
 
@@ -307,10 +374,12 @@
 			<input type="hidden" id="delete_id">
 			<div style="display:none;" id="dialog-add" title="Add Copy"></div>
 			<input type="hidden" id="add_id">
+			<div style="display:none;" id="dialog-new" title="Add"></div>
+			<input type="hidden" id="new_id">
 		<?php else : ?>
 			<?php 
-			include('library/actions.php'); 
-			setMessage('You do not have access to that page. Please login to continue.');
+			include('../library/actions.php'); 
+			setMessage('You do not have access to that page. Please login to continue.', 1);
 			echo '<script>redirectToLogin();</script>';
 			?>
 		<?php endif; ?>
