@@ -1,5 +1,5 @@
 <?php
-$con = mysql_connect('localhost', 'root') or die('Could not connect: ' . mysql_error());
+$con = mysql_connect('localhost', 'escott', 'Silas2727_') or die('Could not connect: ' . mysql_error());
 mysql_select_db('manage_life');
 
 function setMessage($message, $error) {
