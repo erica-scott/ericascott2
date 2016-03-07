@@ -26,7 +26,7 @@ if ($temp < 0) {
 
 include('../library/actions.php');
 
-$res = updateInsert($flag, $amount, $description, $date, $pos_neg, $id, 'money');
+$res = updateInsertMoney($flag, $amount, $description, $date, $pos_neg, $id, 'money');
 
 if ($res == true) {
 	print TRUE;

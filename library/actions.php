@@ -1,6 +1,6 @@
 <?php
 $con = mysql_connect('localhost', 'root') or die('Could not connect: ' . mysql_error());
-mysql_select_db('money');
+mysql_select_db('manage_life');
 
 function setMessage($message, $error) {
 	global $con;
@@ -11,6 +11,7 @@ function setMessage($message, $error) {
 
 function readMessage() {
 	global $con;
+	print mysql_error();
 	$query = "SELECT * FROM message";
 	$res = mysql_query($query, $con);
 	$row = mysql_fetch_assoc($res);
@@ -40,7 +41,15 @@ function get($id, $table_name) {
 	return $row;
 }
 
-function updateInsert($flag, $amount, $description, $date, $pos_neg, $id, $table_name) {
+function getUserFromUsername($username) {
+  global $con;
+  $query = "SELECT * FROM admin WHERE username = '$username'";
+  $res = mysql_query($query);
+  $row = mysql_fetch_assoc($res);
+  return $row;
+}
+
+function updateInsertMoney($flag, $amount, $description, $date, $pos_neg, $id, $table_name) {
 	global $con;
 	$username = $_COOKIE['username'];
 	$query = sprintf("SELECT id FROM admin WHERE username = '%s'", $username);
@@ -57,10 +66,36 @@ function updateInsert($flag, $amount, $description, $date, $pos_neg, $id, $table
 	return $res;
 }
 
+function updateInsertGrades($flag, $class_name, $percentage, $credits, $year, $semester, $id, $table_name) {
+	global $con;
+	$username = $_COOKIE['username'];
+	$query = sprintf("SELECT id FROM admin WHERE username = '%s'", $username);
+	$res = mysql_query($query);
+	$row = mysql_fetch_assoc($res);
+	$user_id = $row['id'];
+
+	if ($flag == 1) {
+		$query = sprintf("UPDATE %s SET class_name = '%s', percentage = '%s', credits = '%s', year = '%s', semester = '%s' WHERE id = '%s'", $table_name, $class_name, $percentage, $credits, $year, $semester, $id);
+	} else {
+		$query = sprintf("INSERT INTO %s (class_name, percentage, credits, year, semester, user_id) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')", $table_name, $class_name, $percentage, $credits, $year, $semester, $user_id);
+	}
+	$res = mysql_query($query, $con);
+	return $res;
+}
+
 function delete($id, $table_name) {
 	global $con;
 	$query = sprintf("DELETE FROM %s where id = '%s'", $table_name, $id);
 	$res = mysql_query($query, $con);
 	return $res;
+}
+
+function addGradeYear($year) {
+  global $con;
+  $username = $_COOKIE['username'];
+  
+  $query = "UPDATE admin SET year_started_school = '$year' WHERE username = '$username'";
+  $res = mysql_query($query);
+  return $res;
 }
 ?>

@@ -250,7 +250,7 @@
 			<?php
 			$con = mysql_connect('localhost', 'root') or die('Could not connect: ' . mysql_error());
 
-			mysql_select_db('money');
+			mysql_select_db('manage_life');
 
 			$username = $_COOKIE['username'];
 			$query = sprintf("SELECT id FROM admin WHERE username = '%s'", $username);
@@ -305,12 +305,14 @@
 			foreach ($data as $year => $months) {
 				if ($year <= $current_date[0]) {
 					foreach ($months as $month => $days) {
-						if ($month <= $current_date[1]) {
+						if ($month <= $current_date[1] || $year != $current_date[0]) {
 							foreach ($days as $day => $rows) {
-								if ($day <= $current_date[2]) {
-									foreach ($rows as $row) {
-										$temp = str_replace('$', '', $row['amount']);
-										$current_total += floatval($temp);
+								if ($day <= $current_date[2] || $month != $current_date[1]) {
+								  if (is_array($rows)) {
+                    foreach ($rows as $row) {
+                      $temp = str_replace('$', '', $row['amount']);
+                      $current_total += floatval($temp);
+                    }
 									}
 								}
 							}
