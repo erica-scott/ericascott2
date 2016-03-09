@@ -66,7 +66,31 @@ function updateInsertMoney($flag, $amount, $description, $date, $pos_neg, $id, $
 	return $res;
 }
 
-function updateInsertGrades($flag, $class_name, $percentage, $credits, $year, $semester, $id, $table_name) {
+function updateInsertGrades($flag, $class_name, $percentage, $credits, $year, $semester, $elective_type, $id, $table_name) {
+	global $con;
+	$username = $_COOKIE['username'];
+	$query = sprintf("SELECT id FROM admin WHERE username = '%s'", $username);
+	$res = mysql_query($query);
+	$row = mysql_fetch_assoc($res);
+	$user_id = $row['id'];
+
+	if ($elective_type != NULL || $elective_type == 0) {
+		$query = sprintf("SELECT id FROM elective_types WHERE name = '%s'", $elective_type);
+		$res = mysql_query($query);
+		$row = mysql_fetch_assoc($res);
+		$elective_id = $row['id'];
+	}
+
+	if ($flag == 1) {
+		$query = sprintf("UPDATE %s SET class_name = '%s', percentage = '%s', credits = '%s', year = '%s', semester = '%s', elective_type = '%s' WHERE id = '%s'", $table_name, $class_name, $percentage, $credits, $year, $semester, $elective_id, $id);
+	} else {
+		$query = sprintf("INSERT INTO %s (class_name, percentage, credits, year, semester, elective_type, user_id) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')", $table_name, $class_name, $percentage, $credits, $year, $semester, $elective_id, $user_id);
+	}
+	$res = mysql_query($query, $con);
+	return $res;
+}
+
+function updateInsertRequiredClasses($flag, $class_name, $year, $id, $table_name) {
 	global $con;
 	$username = $_COOKIE['username'];
 	$query = sprintf("SELECT id FROM admin WHERE username = '%s'", $username);
@@ -75,9 +99,9 @@ function updateInsertGrades($flag, $class_name, $percentage, $credits, $year, $s
 	$user_id = $row['id'];
 
 	if ($flag == 1) {
-		$query = sprintf("UPDATE %s SET class_name = '%s', percentage = '%s', credits = '%s', year = '%s', semester = '%s' WHERE id = '%s'", $table_name, $class_name, $percentage, $credits, $year, $semester, $id);
+		$query = sprintf("UPDATE %s SET class_name = '%s', year = '%s' WHERE id = '%s'", $table_name, $class_name, $year, $id);
 	} else {
-		$query = sprintf("INSERT INTO %s (class_name, percentage, credits, year, semester, user_id) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')", $table_name, $class_name, $percentage, $credits, $year, $semester, $user_id);
+		$query = sprintf("INSERT INTO %s (class_name, year, user_id) VALUES ('%s', '%s', '%s')", $table_name, $class_name, $year, $user_id);
 	}
 	$res = mysql_query($query, $con);
 	return $res;
@@ -97,5 +121,25 @@ function addGradeYear($year) {
   $query = "UPDATE admin SET year_started_school = '$year' WHERE username = '$username'";
   $res = mysql_query($query);
   return $res;
+}
+
+function updateElectives() {
+	global $con;
+	$username = $_COOKIE['username'];
+	$query = sprintf("SELECT id FROM admin WHERE username = '%s'", $username);
+	$res = mysql_query($query);
+	$row = mysql_fetch_assoc($res);
+	$user_id = $row['id'];
+
+	$query = sprintf("SELECT * FROM grades WHERE user_id = '%s' AND elective_type is not NULL", $user_id);
+	$res = 	mysql_query($query);
+	while($row = mysql_fetch_assoc($res)) {
+		$query = sprintf("SELECT * FROM required_courses WHERE class_name = '%s'", $row['class_name']);
+		$check = mysql_query($query);
+		if (mysql_num_rows($check) < 1) {
+			$query = sprintf("INSERT INTO required_courses (class_name, year, elective_type, user_id) VALUES ('%s', '%s', '%s', '%s')", $row['class_name'], 5, $row['elective_type'], $user_id);
+			$insert = mysql_query($query);
+		}
+	}
 }
 ?>
