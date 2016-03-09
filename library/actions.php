@@ -11,10 +11,10 @@ function setMessage($message, $error) {
 
 function readMessage() {
 	global $con;
-	print mysql_error();
 	$query = "SELECT * FROM message";
 	$res = mysql_query($query, $con);
 	$row = mysql_fetch_assoc($res);
+	print mysql_error();
 	return $row;
 }
 
