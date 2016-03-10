@@ -241,6 +241,7 @@
 		</script>
 	</head>
 	<body>
+		<?php include_once("analyticstracking.php") ?>
 		<?php include('header.php'); ?>
 		<br>
 		<?php if(isset($_COOKIE['username']) && $_COOKIE['username'] != 'false') : ?>

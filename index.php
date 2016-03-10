@@ -124,6 +124,7 @@
 		</style>
 	</head>
 	<body>
+		<?php include_once("templates/analyticstracking.php") ?>
 		<?php include('templates/header.php'); ?>
 		<?php if(isset($_COOKIE['username']) && $_COOKIE['username'] != 'false') : ?>
 			<h1>Please choose a function below:</h1><br>
